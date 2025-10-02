@@ -38,3 +38,40 @@ export async function fetchDigimonById(id) {
     return null;
   }
 }
+
+// lib/digimonApi.js
+
+// Buscar um Digimon pelo nome ou ID
+export async function getDigimon(nameOrId) {
+  try {
+    const res = await fetch(`https://digi-api.com/api/v1/digimon/${nameOrId}`, {
+      cache: "no-store", // evita cache de SSR
+    });
+
+    if (!res.ok) throw new Error("Digimon não encontrado");
+
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.error("Erro ao buscar Digimon:", err.message);
+    return null;
+  }
+}
+
+// Buscar lista de Digimons
+export async function getDigimonList(page = 1, pageSize = 20) {
+  try {
+    const res = await fetch(
+      `https://digi-api.com/api/v1/digimon?page=${page}&pageSize=${pageSize}`,
+      { cache: "no-store" }
+    );
+
+    if (!res.ok) throw new Error("Não foi possível buscar a lista de Digimons");
+
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.error("Erro ao buscar lista de Digimons:", err.message);
+    return [];
+  }
+}
