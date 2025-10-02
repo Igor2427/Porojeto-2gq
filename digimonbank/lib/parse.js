@@ -1,10 +1,10 @@
 import Parse from "parse/dist/parse.min.js";
 
 Parse.initialize(
-  "SUA_APP_ID", // Substitua pelo App ID do Back4App
-  "SUA_JS_KEY"  // Substitua pela JS Key
+  process.env.NEXT_PUBLIC_PARSE_APP_ID,
+  process.env.NEXT_PUBLIC_PARSE_JS_KEY
 );
 
-Parse.serverURL = "https://SEU_APP.back4app.io/"; // Substitua pela URL do seu app
+Parse.serverURL = process.env.NEXT_PUBLIC_PARSE_SERVER_URL;
 
 export default Parse;
