@@ -1,20 +1,25 @@
 FROM node:20-alpine
 
+# Pasta de trabalho do container
 WORKDIR /app
 
-# Copiar apenas o package.json da pasta do app
+# Copia só o package.json e package-lock.json da pasta do app
 COPY digimonbank/package*.json ./digimonbank/
 
-# Entrar na pasta do app e instalar dependências
+# Vai para a pasta do app
 WORKDIR /app/digimonbank
+
+# Instala dependências
 RUN npm install
 
-# Copiar todo o app
+# Copia todo o app
 COPY digimonbank/ .
 
-# Rodar build dentro da pasta do app
+# Roda build
 RUN npm run build
 
+# Expõe porta do Next.js
 EXPOSE 3000
 
+# Inicia app
 CMD ["npm", "start"]
