@@ -1,21 +1,25 @@
-# Use Node.js official image
 FROM node:20-alpine
 
-# Create app directory
+# Pasta de trabalho do container
 WORKDIR /app
 
-# Install dependencies
-COPY package*.json ./
+# Copia só o package.json e package-lock.json da pasta do app
+COPY digimonbank/package*.json ./digimonbank/
+
+# Vai para a pasta do app
+WORKDIR /app/digimonbank
+
+# Instala dependências
 RUN npm install
 
-# Copy app source code
-COPY . .
+# Copia todo o app
+COPY digimonbank/ .
 
-# Build Next.js app
+# Roda build
 RUN npm run build
 
-# Expose port
+# Expõe porta do Next.js
 EXPOSE 3000
 
-# Start the app
+# Inicia app
 CMD ["npm", "start"]
