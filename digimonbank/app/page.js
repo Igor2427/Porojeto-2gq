@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { signUp, login, logout } from "../lib/auth";
+import { signUp, login, logout, getCurrentUser } from "../lib/auth";
 
 export default function Home() {
   const [username, setUsername] = useState("");
@@ -9,32 +9,30 @@ export default function Home() {
   const [isRegister, setIsRegister] = useState(false);
   const [error, setError] = useState("");
   const [user, setUser] = useState(null);
-  const [loaded, setLoaded] = useState(false); // só renderiza depois do client
+  const [loaded, setLoaded] = useState(false);
 
-  // Pega usuário do Parse apenas no client
+  // Só rodar no client
   useEffect(() => {
     setLoaded(true);
-    if (typeof window !== "undefined") {
-      const current = window.Parse?.User.current();
-      setUser(current);
-    }
+    const current = getCurrentUser();
+    setUser(current);
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    try {
-      let result;
-      if (isRegister) {
-        result = await signUp(username, password);
-      } else {
-        result = await login(username, password);
-      }
+    let result;
+    if (isRegister) {
+      result = await signUp(username, password);
+    } else {
+      result = await login(username, password);
+    }
 
+    if (result.success) {
       setUser(result.user);
-    } catch (err) {
-      setError(err.message);
+    } else {
+      setError(result.error);
     }
   };
 
@@ -43,7 +41,7 @@ export default function Home() {
     setUser(null);
   };
 
-  if (!loaded) return null; // evita SSR
+  if (!loaded) return null;
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
