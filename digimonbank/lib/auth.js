@@ -1,18 +1,5 @@
 import Parse from "./parse";
 
-// Cadastro de usuário
-export async function signUp(username, password) {
-  const user = new Parse.User();
-  user.set("username", username);
-  user.set("password", password);
-  try {
-    await user.signUp();
-    return { success: true, user };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-}
-
 // Login
 export async function login(username, password) {
   try {
@@ -23,12 +10,30 @@ export async function login(username, password) {
   }
 }
 
-// Logout
-export async function logout() {
-  await Parse.User.logOut();
+// Cadastro
+export async function signUp(username, password) {
+  try {
+    const user = new Parse.User();
+    user.set("username", username);
+    user.set("password", password);
+    await user.signUp();
+    return { success: true, user };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
 }
 
-// Pegar usuário atual
+// Logout
+export async function logout() {
+  if (typeof window !== "undefined") {
+    await Parse.User.logOut();
+  }
+}
+
+// Pegar usuário atual (somente client!)
 export function getCurrentUser() {
-  return Parse.User.current();
+  if (typeof window !== "undefined") {
+    return Parse.User.current() || null;
+  }
+  return null;
 }

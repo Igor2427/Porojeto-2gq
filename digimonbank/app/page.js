@@ -1,74 +1,62 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { signUp, login, getCurrentUser, logout } from "../lib/auth";
-import { useRouter } from "next/navigation";
+import { signUp, login, logout } from "../lib/auth";
 
 export default function Home() {
-  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isRegister, setIsRegister] = useState(false);
   const [error, setError] = useState("");
   const [user, setUser] = useState(null);
+  const [loaded, setLoaded] = useState(false); // só renderiza depois do client
 
-  // Pega usuário atual ao carregar
+  // Pega usuário do Parse apenas no client
   useEffect(() => {
-    const currentUser = getCurrentUser();
-    setUser(currentUser);
+    setLoaded(true);
+    if (typeof window !== "undefined") {
+      const current = window.Parse?.User.current();
+      setUser(current);
+    }
   }, []);
 
-  // Função de submit (login ou registro)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    let result;
-    if (isRegister) {
-      result = await signUp(username, password);
-    } else {
-      result = await login(username, password);
-    }
+    try {
+      let result;
+      if (isRegister) {
+        result = await signUp(username, password);
+      } else {
+        result = await login(username, password);
+      }
 
-    if (result.success) {
       setUser(result.user);
-      router.push("/dashboard");
-    } else {
-      setError(result.error);
+    } catch (err) {
+      setError(err.message);
     }
   };
 
-  // Logout
   const handleLogout = async () => {
     await logout();
     setUser(null);
-    router.refresh();
   };
 
+  if (!loaded) return null; // evita SSR
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-blue-200 to-blue-500">
-      <h1 className="text-3xl font-bold mb-6">Digimon Bank</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+      <h1 className="text-3xl font-bold mb-6">Minha App</h1>
 
       {user ? (
         <div className="text-center">
           <p className="mb-4">Bem-vindo, {user.get("username")}!</p>
           <button
-            onClick={() => router.push("/digimons")}
-            className="bg-yellow-400 px-4 py-2 rounded mr-2"
-          >
-            Ver Digimons
-          </button>
-          <button
-            onClick={() => router.push("/dashboard")}
-            className="bg-green-400 px-4 py-2 rounded mr-2"
-          >
-            Dashboard
-          </button>
-          <button
             onClick={handleLogout}
-            className="bg-red-400 px-4 py-2 rounded"
+            className="bg-red-500 text-white px-4 py-2 rounded"
           >
-            Logout
+            Sair
           </button>
         </div>
       ) : (
