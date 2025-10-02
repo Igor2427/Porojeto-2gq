@@ -3,6 +3,19 @@
 const BASE_URL = "https://digi-api.com/api/v1";
 
 // Buscar lista de Digimons
+export async function getDigimon(nameOrId) {
+  try {
+    const res = await fetch(`https://digi-api.com/api/v1/digimon/${nameOrId}`);
+    if (!res.ok) throw new Error("Digimon não encontrado");
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.error("Erro ao buscar Digimon:", err.message);
+    return null;
+  }
+}
+
+
 export async function fetchDigimons(page = 0) {
   try {
     const res = await fetch(`${BASE_URL}/digimon?page=${page}`);

@@ -30,13 +30,12 @@ export async function login(username, password) {
 // Logout
 export async function logout() {
   if (typeof window === "undefined") return;
-
   try {
     await Parse.User.logOut();
   } catch (err) {
-    // Ignorar erro se a sessão não existir ou já estiver inválida
+    // Ignora erro se a sessão não existir ou já estiver inválida
     if (!err.message.includes("invalid session token")) {
-      console.error(err);
+      throw err; // lança outros erros
     }
   }
 }
