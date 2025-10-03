@@ -1,14 +1,14 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { getCurrentUser } from "../../lib/auth";
-import { fetchDigimons } from "../../lib/digimonApi";  // Certifique-se de que a função está importada corretamente
+import { getDigimonList } from "../../lib/digimonApi";  // Corrigido para a função correta
 
 export default function DigimonsPage() {
+  const router = useRouter();
   const [user, setUser] = useState(null);
-  const [digimons, setDigimons] = useState([]);  // Estado para armazenar os Digimons
-  const [selectedDigimon, setSelectedDigimon] = useState(null);  // Digimon escolhido
-  const [error, setError] = useState("");
+  const [digimons, setDigimons] = useState([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -17,21 +17,16 @@ export default function DigimonsPage() {
     setUser(current);
 
     if (current) {
-      fetchDigimons().then((data) => {
+      getDigimonList().then((data) => {
         if (data) {
-          console.log("Digimons recebidos:", data);  // Verifique o que está sendo retornado
           setDigimons(data);
-        } else {
-          console.error("Nenhum Digimon foi encontrado.");
         }
-      }).catch((error) => {
-        console.error("Erro ao buscar Digimons:", error);
       });
     }
   }, []);
 
   const handleDigimonSelect = (digimon) => {
-    setSelectedDigimon(digimon);  // Definir o Digimon selecionado
+    router.push(`/digimon/${digimon.id || digimon.name}`);
   };
 
   if (!loaded) return null;
@@ -44,9 +39,7 @@ export default function DigimonsPage() {
         <div className="text-center">
           <p className="mb-4">Bem-vindo, {user.get("username")}!</p>
 
-          {/* Exibir Digimons se o usuário estiver logado */}
           <div className="mt-6">
-            <h2 className="text-xl font-semibold mb-4">Escolha um Digimon</h2>
             <div className="grid grid-cols-3 gap-4">
               {digimons.map((digimon) => (
                 <div
@@ -63,24 +56,10 @@ export default function DigimonsPage() {
                 </div>
               ))}
             </div>
-
-            {/* Mostrar o Digimon selecionado */}
-            {selectedDigimon && (
-              <div className="mt-6 border p-4 rounded shadow-lg">
-                <h3 className="text-lg font-bold">{selectedDigimon.name}</h3>
-                <img
-                  src={selectedDigimon.image}
-                  alt={selectedDigimon.name}
-                  className="w-32 h-32 mx-auto mb-2"
-                />
-                <p><strong>Nível:</strong> {selectedDigimon.level}</p>
-                <p><strong>Atributo:</strong> {selectedDigimon.attribute}</p>
-              </div>
-            )}
           </div>
         </div>
       ) : (
-        <p>Carregando...</p> // Caso o usuário ainda não esteja autenticado
+        <p>Carregando...</p>
       )}
     </div>
   );
